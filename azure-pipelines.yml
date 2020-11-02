@@ -1,0 +1,211 @@
+# ASP.NET Core (.NET Framework)
+# Build and test ASP.NET Core projects targeting the full .NET Framework.
+# Add steps that publish symbols, save build artifacts, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+name: $(date:yyyy.M.d)$(rev:.r)
+trigger:
+  branches:
+    include: 
+    - master
+  paths:
+    exclude:
+    - Readme/*
+    - README.md
+    - .order
+resources:
+  repositories:
+    - repository: templates
+      type: git
+      name: "Shared/pipelines" 
+      #ref: refs/tags/v1.0 # optional ref to pin to
+
+pool: 'Default' #//Self hosted pool. When using Microsoft's pools, use the values below. 
+  #vmImage: 'windows-latest'
+  
+variables:
+  #Standard variables
+  - template: src/Yaml/Vars_Release_AnyCPU.yml@templates
+  - template: src/Yaml/Vars_CopyRight_APS.yml@templates
+  - name: internalNugetFeed 
+    value: 'Aps.Scaffold'
+  
+  #Other variables
+  - name: productName 
+    value: 'Beeper'
+  - name: outputDirectory
+    value: '$(build.binariesDirectory)/$(buildConfiguration)'
+
+stages:
+- stage: Build
+  #pool: StageAPool
+  jobs:
+  - job: Build
+  #- job: A2 # will run on "JobPool" pool
+    steps:
+    - checkout: self
+      displayName: "Checkout repository including submodules"
+      submodules: true
+
+    - task: NuGetToolInstaller@1
+
+    - task: NuGetCommand@2
+      inputs:
+        restoreSolution: '$(solution)'
+
+    - template: src/Yaml/FrameworkBuildAndTest.yml@templates
+      parameters:
+        sourceNugetFeed: "$(internalNugetFeed)"
+        productName: "$(productName)"
+        copyright: "$(Copyright)"
+        owner: "$(AssemblyCompany)"
+        buildConfiguration: "$(BuildConfiguration)"
+        buildPlatform: "$(BuildPlatform)"
+
+- stage: Release_Test
+  dependsOn: Build
+  pool:
+    vmImage: 'ubuntu-18.04'
+  jobs:
+  - deployment: SetupAzureTest
+    variables: 
+      environmentName: 'preview'
+      resourceGroupName: '$(productName)$(environmentName)'
+    environment: 'preview'
+    strategy: 
+      runOnce:
+        #predeploy:  steps etc
+        deploy:
+          #checkout: none
+          steps:
+          - task: AzureResourceGroupDeployment@2
+            name: CreateStorage
+            displayName: 'ARM: Create Storage account for $(environmentName)'
+            inputs:
+              azureSubscription: 'Visual Studio Enterprise – MPN (2b240afd-7250-4208-847c-def07038c95a)'
+              resourceGroupName: $(resourceGroupName)
+              location: '$(resourceLocation)'
+              csmFile: '$(Pipeline.Workspace)/drop/AzureResourceGroup/azuredeploy.json'
+              csmParametersFile: '$(Pipeline.Workspace)/drop/AzureResourceGroup/azuredeploy.parameters.$(environmentName).json'
+              overrideParameters: '-resourceGroupName "$(resourceGroupName)"'
+              deploymentOutputs: ResourceGroupDeploymentOutputs
+
+          - powershell: |
+              $outputs = '$(ResourceGroupDeploymentOutputs)' | ConvertFrom-Json
+              foreach ($output in $outputs.PSObject.Properties) {
+                Write-Host "##vso[task.setvariable variable=RGDO_$($output.Name)]$($output.Value.value)"
+              }
+            displayName: 'make arm outputs available as separate variables.'
+
+          - task: AzureCLI@2
+            displayName: 'Azure CLI  - Activate Static $web site on Blob storage'
+            inputs:
+              azureSubscription: 'Visual Studio Enterprise – MPN (2b240afd-7250-4208-847c-def07038c95a)'
+              scriptType: pscore
+              scriptLocation: inlineScript
+              inlineScript: |
+                $storageAccount = "$(RGDO_storageAccountName)" 
+                
+                az storage blob service-properties update --account-name $storageAccount --static-website --index-document index.html --404-document 404.html
+               
+                $storageAccountProperties = az storage account show -n $storageAccount | ConvertFrom-Json
+                
+                Write-Host "##vso[task.setvariable variable=storageAccountWebEndpoint]$($storageAccountProperties.primaryEndpoints.web)"
+        
+          - task: AzureCLI@2
+            displayName: 'Azure CLI - Copy website to $web on Blob storage'
+            inputs:
+              azureSubscription: 'Visual Studio Enterprise – MPN (2b240afd-7250-4208-847c-def07038c95a)'
+              scriptType: pscore
+              scriptLocation: inlineScript
+              inlineScript: |
+                $storageAccount = "$(RGDO_storageAccountName)"
+                $containerName  = '$web'
+                $sourceFolder = "$(Pipeline.Workspace)/drop/website/preview"
+            
+                az storage blob upload-batch -d $containerName -s $sourceFolder --account-name $storageAccount
+          
+         # - task: AzureResourceGroupDeployment@2
+         #   displayName: 'ARM: Activate CDN on Blob storage'
+         #   inputs:
+         #     azureSubscription: 'Visual Studio Enterprise – MPN (2b240afd-7250-4208-847c-def07038c95a)'
+         #     resourceGroupName: $(resourceGroupName)
+         #     location: '$(resourceLocation)'
+         #     csmFile: '$(Pipeline.Workspace)/drop/AzureResourceGroup/azuredeploy (2).json'
+         #     csmParametersFile: '$(Pipeline.Workspace)/drop/AzureResourceGroup/azuredeploy.parameters.$(environmentName).json'
+         #     overrideParameters: '-resourceGroupName "$(resourceGroupName)" -webEndpoint $(storageAccountWebEndpoint)'
+- stage: Release_Prod
+  dependsOn: Release_Test
+  pool:
+    vmImage: 'ubuntu-18.04'
+  jobs:
+  - deployment: SetupAzureProd
+    variables: 
+      environmentName: 'live'
+      resourceGroupName: '$(productName)'
+    environment: 'live'
+    strategy: 
+      runOnce:
+        #predeploy:  steps etc
+        deploy:
+          #checkout: none
+          steps:
+          - task: AzureResourceGroupDeployment@2
+            name: CreateStorage
+            displayName: 'ARM: Create Storage account for $(environmentName)'
+            inputs:
+              azureSubscription: 'Visual Studio Enterprise – MPN (2b240afd-7250-4208-847c-def07038c95a)'
+              resourceGroupName: $(resourceGroupName)
+              location: '$(resourceLocation)'
+              csmFile: '$(Pipeline.Workspace)/drop/AzureResourceGroup/azuredeploy.json'
+              csmParametersFile: '$(Pipeline.Workspace)/drop/AzureResourceGroup/azuredeploy.parameters.$(environmentName).json'
+              overrideParameters: '-resourceGroupName "$(resourceGroupName)"'
+              deploymentOutputs: ResourceGroupDeploymentOutputs
+
+          - powershell: |
+              $outputs = '$(ResourceGroupDeploymentOutputs)' | ConvertFrom-Json
+              foreach ($output in $outputs.PSObject.Properties) {
+                Write-Host "##vso[task.setvariable variable=RGDO_$($output.Name)]$($output.Value.value)"
+              }
+            displayName: 'make arm outputs available as separate variables.'
+
+          - task: AzureCLI@2
+            displayName: 'Azure CLI  - Activate Static $web site on Blob storage'
+            inputs:
+              azureSubscription: 'Visual Studio Enterprise – MPN (2b240afd-7250-4208-847c-def07038c95a)'
+              scriptType: pscore
+              scriptLocation: inlineScript
+              inlineScript: |
+                $storageAccount = "$(RGDO_storageAccountName)" 
+                
+                az storage blob service-properties update --account-name $storageAccount --static-website --index-document index.html --404-document 404.html
+               
+                $storageAccountProperties = az storage account show -n $storageAccount | ConvertFrom-Json
+                
+                Write-Host "##vso[task.setvariable variable=storageAccountWebEndpoint]$($storageAccountProperties.primaryEndpoints.web)"
+        
+          - task: AzureCLI@2
+            displayName: 'Azure CLI - Copy website to $web on Blob storage'
+            inputs:
+              azureSubscription: 'Visual Studio Enterprise – MPN (2b240afd-7250-4208-847c-def07038c95a)'
+              scriptType: pscore
+              scriptLocation: inlineScript
+              inlineScript: |
+                $storageAccount = "$(RGDO_storageAccountName)"
+                $containerName  = '$web'
+                $sourceFolder = "$(Pipeline.Workspace)/drop/website/public"
+            
+                az storage blob upload-batch -d $containerName -s $sourceFolder --account-name $storageAccount
+          
+          - task: AzureResourceGroupDeployment@2
+            displayName: 'ARM: Activate CDN on Blob storage'
+            inputs:
+              azureSubscription: 'Visual Studio Enterprise – MPN (2b240afd-7250-4208-847c-def07038c95a)'
+              resourceGroupName: $(resourceGroupName)
+              location: '$(resourceLocation)'
+              csmFile: '$(Pipeline.Workspace)/drop/AzureResourceGroup/azuredeploy (2).json'
+              csmParametersFile: '$(Pipeline.Workspace)/drop/AzureResourceGroup/azuredeploy.parameters.$(environmentName).json'
+              overrideParameters: '-resourceGroupName "$(resourceGroupName)" -webEndpoint $(storageAccountWebEndpoint)'
+
+       
+            
