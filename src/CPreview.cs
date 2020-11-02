@@ -19,6 +19,8 @@ using MediaFoundation.ReadWrite;
 using MediaFoundation.Alt;
 using MediaFoundation.Misc;
 using MFCaptureD3D.Sample1;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace MFCaptureD3D
 {
@@ -116,15 +118,22 @@ namespace MFCaptureD3D
                         pSource = (IMFMediaSource)o;
 
 
-                        pSource.Y();
 
 
-                        var p = (IAMVideoProcAmp) o;
-                        p.Set(VideoProcAmpProperty.WhiteBalance, 7000, VideoProcAmpFlags.Manual);
-                    }
+            //MFMediaSource s = new MFMediaSource(pSource);
+            //s.Settings.WhiteBalance.CurrentFlag = VideoProcAmpFlags.Manual;
+            //s.Settings.WhiteBalance.CurrentValue = 3000;
+            //s.Apply();
 
-                    // Get Symbolic device link
-                    m_pwszSymbolicLink = pDevice.SymbolicName;
+            //  pSource.Y();
+
+
+            //var p = (IAMVideoProcAmp) o;
+            //p.Set(VideoProcAmpProperty.WhiteBalance, 4000, VideoProcAmpFlags.Auto);
+          }
+
+          // Get Symbolic device link
+          m_pwszSymbolicLink = pDevice.SymbolicName;
 
                     //
                     // Create the source reader.
@@ -190,9 +199,20 @@ namespace MFCaptureD3D
                     {
                         // Ask for the first sample.
                         hr = m_pReader.ReadSample((int)MF_SOURCE_READER.FirstVideoStream, 0, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
+            
+            
+            MFMediaSource s = new MFMediaSource(pSource);
+            s.Settings.WhiteBalance.CurrentFlag = VideoProcAmpFlags.Auto;
+            s.Settings.WhiteBalance.CurrentValue = 3000;
 
-                        var p = (IAMVideoProcAmp)o;
-                        p.Set(VideoProcAmpProperty.WhiteBalance, 7000, VideoProcAmpFlags.Manual);
+            var x  = JsonSerializer.Serialize(s.Settings);
+
+
+
+            s.Apply();
+
+            
+            //SETTINGS GO HERE - after opening the camera. 
           }
 
                     if (Failed(hr))
