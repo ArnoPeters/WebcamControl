@@ -5,11 +5,12 @@ using MediaFoundation;
 
 namespace MFCaptureD3D.Sample1
 {
-    /// <summary>
-    /// The IAMVideoProcAmp interface controls video camera settings such as brightness, contrast, hue,
-    /// or saturation. To obtain this interface, cast the MediaSource.
-    /// </summary>
-        [ComImport, System.Security.SuppressUnmanagedCodeSecurity,
+  /// <summary>
+  /// The IAMVideoProcAmp interface controls video camera settings such as brightness, contrast, hue,
+  /// or saturation. To obtain this interface, cast the MediaSource.
+  /// </summary>
+  /// <remarks>Code copied from https://gist.github.com/MZachmann/557bf6663ce4806dfa85f1cd348027b4</remarks>
+  [ComImport, System.Security.SuppressUnmanagedCodeSecurity,
         Guid("C6E13360-30AC-11D0-A18C-00A0C9118956"),
         InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
         public interface IAMVideoProcAmp

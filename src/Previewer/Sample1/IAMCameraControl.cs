@@ -5,11 +5,12 @@ using MediaFoundation;
 
 namespace MFCaptureD3D.Sample1
 {
-    /// <summary>
-    /// The IAMCameraControl interface controls web camera settings such as zoom, pan, aperture adjustment,
-    /// or shutter speed. To obtain this interface, cast a MediaSource.
-    /// </summary>
-    [ComImport, System.Security.SuppressUnmanagedCodeSecurity,
+  /// <summary>
+  /// The IAMCameraControl interface controls web camera settings such as zoom, pan, aperture adjustment,
+  /// or shutter speed. To obtain this interface, cast a MediaSource.
+  /// </summary>
+  /// <remarks>Code copied from https://gist.github.com/MZachmann/557bf6663ce4806dfa85f1cd348027b4</remarks>
+  [ComImport, System.Security.SuppressUnmanagedCodeSecurity,
     Guid( "C6E13370-30AC-11d0-A18C-00A0C9118956" ),
     InterfaceType( ComInterfaceType.InterfaceIsIUnknown )]
     public interface IAMCameraControl

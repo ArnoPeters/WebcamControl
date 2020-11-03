@@ -1,26 +1,63 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MFCaptureD3D-2010", "MFCaptureD3D-2010.csproj", "{F9939E35-CA74-46E8-AA49-2A776832CC49}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30621.155
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MFCaptureD3D-2010", "Previewer\MFCaptureD3D-2010.csproj", "{F9939E35-CA74-46E8-AA49-2A776832CC49}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CamControl.Lib", "CamControl.Lib\CamControl.Lib.csproj", "{2459AFC7-9EFB-4372-85BF-0C52A11229DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CamControl.UnitTests", "CamControl.UnitTests\CamControl.UnitTests.csproj", "{36151784-2968-42E5-9D96-3283895E802B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F9939E35-CA74-46E8-AA49-2A776832CC49}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{F9939E35-CA74-46E8-AA49-2A776832CC49}.Debug|x64.ActiveCfg = Debug|x64
 		{F9939E35-CA74-46E8-AA49-2A776832CC49}.Debug|x64.Build.0 = Debug|x64
 		{F9939E35-CA74-46E8-AA49-2A776832CC49}.Debug|x86.ActiveCfg = Debug|x86
 		{F9939E35-CA74-46E8-AA49-2A776832CC49}.Debug|x86.Build.0 = Debug|x86
+		{F9939E35-CA74-46E8-AA49-2A776832CC49}.Release|Any CPU.ActiveCfg = Release|x86
 		{F9939E35-CA74-46E8-AA49-2A776832CC49}.Release|x64.ActiveCfg = Release|x64
 		{F9939E35-CA74-46E8-AA49-2A776832CC49}.Release|x64.Build.0 = Release|x64
 		{F9939E35-CA74-46E8-AA49-2A776832CC49}.Release|x86.ActiveCfg = Release|x86
 		{F9939E35-CA74-46E8-AA49-2A776832CC49}.Release|x86.Build.0 = Release|x86
+		{2459AFC7-9EFB-4372-85BF-0C52A11229DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2459AFC7-9EFB-4372-85BF-0C52A11229DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2459AFC7-9EFB-4372-85BF-0C52A11229DE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2459AFC7-9EFB-4372-85BF-0C52A11229DE}.Debug|x64.Build.0 = Debug|Any CPU
+		{2459AFC7-9EFB-4372-85BF-0C52A11229DE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2459AFC7-9EFB-4372-85BF-0C52A11229DE}.Debug|x86.Build.0 = Debug|Any CPU
+		{2459AFC7-9EFB-4372-85BF-0C52A11229DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2459AFC7-9EFB-4372-85BF-0C52A11229DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2459AFC7-9EFB-4372-85BF-0C52A11229DE}.Release|x64.ActiveCfg = Release|Any CPU
+		{2459AFC7-9EFB-4372-85BF-0C52A11229DE}.Release|x64.Build.0 = Release|Any CPU
+		{2459AFC7-9EFB-4372-85BF-0C52A11229DE}.Release|x86.ActiveCfg = Release|Any CPU
+		{2459AFC7-9EFB-4372-85BF-0C52A11229DE}.Release|x86.Build.0 = Release|Any CPU
+		{36151784-2968-42E5-9D96-3283895E802B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36151784-2968-42E5-9D96-3283895E802B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36151784-2968-42E5-9D96-3283895E802B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{36151784-2968-42E5-9D96-3283895E802B}.Debug|x64.Build.0 = Debug|Any CPU
+		{36151784-2968-42E5-9D96-3283895E802B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{36151784-2968-42E5-9D96-3283895E802B}.Debug|x86.Build.0 = Debug|Any CPU
+		{36151784-2968-42E5-9D96-3283895E802B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36151784-2968-42E5-9D96-3283895E802B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36151784-2968-42E5-9D96-3283895E802B}.Release|x64.ActiveCfg = Release|Any CPU
+		{36151784-2968-42E5-9D96-3283895E802B}.Release|x64.Build.0 = Release|Any CPU
+		{36151784-2968-42E5-9D96-3283895E802B}.Release|x86.ActiveCfg = Release|Any CPU
+		{36151784-2968-42E5-9D96-3283895E802B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0F2FC6E8-BAC3-4637-9C0B-87B4B6FCD5D4}
 	EndGlobalSection
 EndGlobal

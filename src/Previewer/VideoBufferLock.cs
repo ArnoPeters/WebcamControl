@@ -24,7 +24,7 @@ namespace MFCaptureD3D
     //  Locks a video buffer that might or might not support IMF2DBuffer.
     //
     //-------------------------------------------------------------------
-    class VideoBufferLock : COMBase, IDisposable
+  public  class VideoBufferLock : COMBase, IDisposable
     {
         private IMFMediaBuffer m_pBuffer;
         private IMF2DBuffer m_p2DBuffer;

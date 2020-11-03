@@ -17,10 +17,11 @@ using System;
 
 namespace MFCaptureD3D.Sample1
 {
-    /// <summary>
-    /// The list of video camera settings
-    /// </summary>
-    public enum VideoProcAmpProperty
+  /// <summary>
+  /// The list of video camera settings
+  /// </summary>
+  /// <remarks>Code copied from https://gist.github.com/MZachmann/557bf6663ce4806dfa85f1cd348027b4</remarks>
+  public enum VideoProcAmpProperty
         {
             Brightness = 0,
             Contrast,
@@ -34,10 +35,11 @@ namespace MFCaptureD3D.Sample1
             Gain
         }
 
-    /// <summary>
-    /// The auto and manual flag
-    /// </summary>
-    [Flags]
+  /// <summary>
+  /// The auto and manual flag
+  /// </summary>
+  /// <remarks>Code copied from https://gist.github.com/MZachmann/557bf6663ce4806dfa85f1cd348027b4</remarks>
+  [Flags]
     public enum VideoProcAmpFlags
         {
             None = 0x0,
