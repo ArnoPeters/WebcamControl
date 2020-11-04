@@ -6,29 +6,10 @@ namespace MFCaptureD3D
 {
 	public class MFDevice : IDisposable
 	{
-		private IMFActivate m_Activator;
 		private string m_FriendlyName;
 		private string m_SymbolicName;
 
-		public MFDevice(IMFActivate Mon)
-		{
-			m_Activator = Mon;
-			m_FriendlyName = null;
-			m_SymbolicName = null;
-		}
-
-		~MFDevice()
-		{
-			this.Dispose();
-		}
-
-		public IMFActivate Activator
-		{
-			get
-			{
-				return m_Activator;
-			}
-		}
+		public IMFActivate Activator { get; private set; }
 
 		public string Name
 		{
@@ -39,11 +20,7 @@ namespace MFCaptureD3D
 					HResult hr = 0;
 					int iSize = 0;
 
-					hr = m_Activator.GetAllocatedString(
-						MFAttributesClsid.MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME,
-						out m_FriendlyName,
-						out iSize
-					);
+					hr = this.Activator.GetAllocatedString(MFAttributesClsid.MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME, out m_FriendlyName, out iSize);
 				}
 
 				return m_FriendlyName;
@@ -51,7 +28,7 @@ namespace MFCaptureD3D
 		}
 
 		/// <summary>
-		/// Returns a unique identifier for a device
+		///   Returns a unique identifier for a device
 		/// </summary>
 		public string SymbolicName
 		{
@@ -60,19 +37,27 @@ namespace MFCaptureD3D
 				if (m_SymbolicName == null)
 				{
 					int iSize;
-					HResult hr = m_Activator.GetAllocatedString(
-						MFAttributesClsid.MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK,
-						out m_SymbolicName,
-						out iSize
-					);
+					HResult hr = this.Activator.GetAllocatedString(MFAttributesClsid.MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_SYMBOLIC_LINK, out m_SymbolicName, out iSize);
 				}
 
 				return m_SymbolicName;
 			}
 		}
 
+		public MFDevice(IMFActivate Mon)
+		{
+			this.Activator = Mon;
+			m_FriendlyName = null;
+			m_SymbolicName = null;
+		}
+
+		~MFDevice()
+		{
+			this.Dispose();
+		}
+
 		/// <summary>
-		/// Returns an array of DsDevices of type devcat.
+		///   Returns an array of DsDevices of type devcat.
 		/// </summary>
 		/// <param name="cat">Any one of FilterCategory</param>
 		public static MFDevice[] GetDevicesOfCat(Guid FilterCategory)
@@ -92,13 +77,7 @@ namespace MFCaptureD3D
 			hr = MFExtern.MFCreateAttributes(out pAttributes, 1);
 
 			// Ask for source type = video capture devices
-			if (hr >= 0)
-			{
-				hr = pAttributes.SetGUID(
-					MFAttributesClsid.MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE,
-					FilterCategory
-				);
-			}
+			if (hr >= 0) { hr = pAttributes.SetGUID(MFAttributesClsid.MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE, FilterCategory); }
 
 			// Enumerate devices.
 			int cDevices;
@@ -110,17 +89,11 @@ namespace MFCaptureD3D
 				{
 					devret = new MFDevice[cDevices];
 
-					for (int x = 0; x < cDevices; x++)
-					{
-						devret[x] = new MFDevice(ppDevices[x]);
-					}
+					for (int x = 0; x < cDevices; x++) { devret[x] = new MFDevice(ppDevices[x]); }
 				}
 			}
 
-			if (pAttributes != null)
-			{
-				Marshal.ReleaseComObject(pAttributes);
-			}
+			if (pAttributes != null) { Marshal.ReleaseComObject(pAttributes); }
 
 			return devret;
 		}
@@ -132,10 +105,10 @@ namespace MFCaptureD3D
 
 		public void Dispose()
 		{
-			if (m_Activator != null)
+			if (this.Activator != null)
 			{
-				Marshal.ReleaseComObject(m_Activator);
-				m_Activator = null;
+				Marshal.ReleaseComObject(this.Activator);
+				this.Activator = null;
 			}
 			m_FriendlyName = null;
 			m_SymbolicName = null;

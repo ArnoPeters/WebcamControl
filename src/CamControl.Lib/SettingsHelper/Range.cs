@@ -5,7 +5,10 @@ namespace MFCaptureD3D.Sample1
 	[DebuggerDisplay("({Min},{Max})")]
 	public class Range
 	{
-
+		public int Min { get; }
+		public int Max { get; }
+		public int Delta { get; }
+		public int Default { get; }
 
 		public Range(int rMin, int rMax, int rDelta, int rDeflt)
 		{
@@ -14,10 +17,5 @@ namespace MFCaptureD3D.Sample1
 			this.Delta = rDelta;
 			this.Default = rDeflt;
 		}
-
-		public int Min { get; set; }
-		public int Max { get; set; }
-		public int Delta { get; set; }
-		public int Default { get; set; }
 	}
 }

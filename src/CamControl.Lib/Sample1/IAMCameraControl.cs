@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using System.Security;
 using MediaFoundation;
 
 // see: https://msdn.microsoft.com/en-us/library/windows/desktop/dd389145(v=vs.85).aspx
@@ -10,9 +11,7 @@ namespace MFCaptureD3D.Sample1
   /// or shutter speed. To obtain this interface, cast a MediaSource.
   /// </summary>
   /// <remarks>Code copied from https://gist.github.com/MZachmann/557bf6663ce4806dfa85f1cd348027b4</remarks>
-  [ComImport, System.Security.SuppressUnmanagedCodeSecurity,
-    Guid( "C6E13370-30AC-11d0-A18C-00A0C9118956" ),
-    InterfaceType( ComInterfaceType.InterfaceIsIUnknown )]
+  [ComImport][SuppressUnmanagedCodeSecurity][Guid( "C6E13370-30AC-11d0-A18C-00A0C9118956" )][InterfaceType( ComInterfaceType.InterfaceIsIUnknown )]
     public interface IAMCameraControl
     {
         /// <summary>

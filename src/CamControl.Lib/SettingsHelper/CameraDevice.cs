@@ -14,18 +14,17 @@ Modified by snarfle
 using System;
 using MediaFoundation;
 using MediaFoundation.Misc;
-using MFCaptureD3D.Sample1;
 
 //using System.Text.Json;
 //using System.Text.Json.Serialization;
 
 namespace MFCaptureD3D
 {
-	public class CPreview2 : COMBase, IDisposable
+	public class CameraDevice : COMBase, IDisposable
 	{
 		private readonly MFDevice _PDevice;
 
-		public CPreview2(MFDevice pDevice)
+		public CameraDevice(MFDevice pDevice)
 		{
 			_PDevice = pDevice;
 
@@ -33,10 +32,18 @@ namespace MFCaptureD3D
 			MFError.ThrowExceptionForHR(hr);
 		}
 
-		public HResult SetDevice()
+		private void SetDevice(Action<IMFMediaSource> action)
 		{
-			HResult hr = HResult.S_OK;
+			this.SetDevice<object>(d =>
+			{
+				action(d);
+				return null;
+			});
+		}
 
+		private T SetDevice<T>(Func<IMFMediaSource, T> action)
+		{
+			T result = default;
 			IMFActivate pActivate = _PDevice.Activator;
 			IMFMediaSource pSource = null;
 			IMFAttributes pAttributes = null;
@@ -46,25 +53,11 @@ namespace MFCaptureD3D
 				try
 				{
 					// Create the media source for the device.
-					hr = pActivate.ActivateObject(typeof(IMFMediaSource).GUID, out object o);
-
+					HResult hr = pActivate.ActivateObject(typeof(IMFMediaSource).GUID, out object o);
 					if (Succeeded(hr))
 					{
 						pSource = (IMFMediaSource) o;
-
-						MFMediaSource s = new MFMediaSource(pSource);
-						s.Settings.WhiteBalance.CurrentFlag = VideoProcAmpFlags.Manual;
-						int a = s.Settings.WhiteBalance.CurrentValue;
-						s.Settings.WhiteBalance.CurrentValue = 3000;
-						//s.Settings.Exposure.CurrentFlag = CameraControlFlags.Manual;
-						//s.Settings.Exposure.CurrentValue = -7;
-						s.Apply();
-
-						s.Settings.WhiteBalance.CurrentValue = a;
-						s.Settings.WhiteBalance.CurrentFlag = VideoProcAmpFlags.Auto;
-						s.Apply();
-
-						//SETTINGS GO HERE - after opening the camera. 
+						result = action(pSource);
 					}
 
 					if (Failed(hr))
@@ -79,19 +72,34 @@ namespace MFCaptureD3D
 				}
 			}
 
-			return hr;
+			return result;
 		}
 
 		private void ReleaseUnmanagedResources()
 		{
 			// Shutdown the Media Foundation platform
-			HResult hr = MFExtern.MFShutdown();
-			MFError.ThrowExceptionForHR(hr);
+			//HResult hr = MFExtern.MFShutdown();
+			//MFError.ThrowExceptionForHR(hr);
 		}
 
-		~CPreview2()
+		~CameraDevice()
 		{
 			this.ReleaseUnmanagedResources();
+		}
+
+		public Capabilities Capabilities()
+		{
+			return this.SetDevice(d => { return new Capabilities(_PDevice.Name, d); });
+		}
+
+		public Settings GetSettings()
+		{
+			return this.SetDevice(d => { return Settings.Create(_PDevice.Name, d); });
+		}
+
+		public void ApplySettings(Settings settings)
+		{
+			this.SetDevice(d => { settings.Apply(d); });
 		}
 
 		public void Dispose()
@@ -102,3 +110,17 @@ namespace MFCaptureD3D
 		}
 	}
 }
+/*MFMediaSource s = new MFMediaSource(pSource);
+						s.Settings.WhiteBalance.SettingMethod = VideoProcAmpFlags.Manual;
+						int a = s.Settings.WhiteBalance.Value;
+						s.Settings.WhiteBalance.Value = 3000;
+						//s.Settings.Exposure.SettingMethod = CameraControlFlags.Manual;
+						//s.Settings.Exposure.Value = -7;
+						s.Apply();
+
+						s.Settings.WhiteBalance.Value = a;
+						s.Settings.WhiteBalance.SettingMethod = VideoProcAmpFlags.Auto;
+						s.Apply();
+
+						//SETTINGS GO HERE - after opening the camera. 
+*/
