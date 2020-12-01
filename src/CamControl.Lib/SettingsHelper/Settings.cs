@@ -78,9 +78,10 @@ namespace MFCaptureD3D
 				this.Sharpness.Apply(VideoProcAmpProperty.Sharpness, Ivp);
 				this.Gamma.Apply(VideoProcAmpProperty.Gamma, Ivp);
 				this.ColorEnable.Apply(VideoProcAmpProperty.ColorEnable, Ivp);
-				this.WhiteBalance.Apply(VideoProcAmpProperty.WhiteBalance, Ivp);
 				this.BacklightCompensation.Apply(VideoProcAmpProperty.BacklightCompensation, Ivp);
 				this.Gain.Apply(VideoProcAmpProperty.Gain, Ivp);
+				this.WhiteBalance.Apply(VideoProcAmpProperty.WhiteBalance, Ivp);
+				
 			}
 			catch { }
 		}
